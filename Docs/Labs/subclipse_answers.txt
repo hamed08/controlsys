@@ -1,0 +1,14 @@
+1.Check-in
+  Commit
+  Work on your code
+  Mark as Merged (if necessary)
+  Resolve conflicts (if necessary)
+  
+2.Check-in
+  Commit
+  Work on your code
+  Resolve conflicts (if necessary)
+  Mark as Merged (if necessary)
+  
+3.True
+4.True
