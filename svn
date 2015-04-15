@@ -1,1 +1,89 @@
-http://arduino-project.net/pogodnaya-stantsiya-na-arduino/
+
+После подключения всех модулей и датчиков загружаем в arduino наш код
+
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <Wire.h>
+#include <BMP085.h>
+#include <DHT.h> 
+#include <DS1307.h>
+#include <EEPROM.h>
+ 
+#define ONE_WIRE_BUS 4
+ 
+OneWire oneWire(ONE_WIRE_BUS);
+ 
+DallasTemperature sensors(&oneWire);
+ 
+DeviceAddress Thermometer1 = { 
+  0x28, 0x00, 0x54, 0xB6, 0x04, 0x00, 0x00, 0x92 };  
+DeviceAddress Thermometer3 = { 
+  0x28, 0x94, 0xAC, 0xDF, 0x02, 0x00, 0x00, 0xB5 }; 
+ 
+  BMP085 dps = BMP085();     
+  long Temperature = 0, Pressure = 0, Altitude = 0;
+ 
+  DHT dht(8, DHT11);
+ 
+  char incomingByte; 
+ 
+ int x=0; 
+ 
+void setup()   {
+ 
+  sensors.begin();
+  sensors.setResolution(Thermometer1, 10);
+  sensors.setResolution(Thermometer3, 10);
+ 
+  Wire.begin();
+  dps.init(MODE_ULTRA_HIGHRES, 21000, true); 
+  dht.begin();
+ 
+  Serial.begin(9600);
+}
+ 
+void printTemperature(DeviceAddress deviceAddress) {
+  float tempC = sensors.getTempC(deviceAddress);
+  Serial.println(tempC,1);
+}
+ 
+void loop(){
+ 
+  sensors.requestTemperatures();
+ 
+  dps.getPressure(&Pressure);
+ 
+  int h = dht.readHumidity();
+  float t = dht.readTemperature();
+ 
+    if (Serial.available() > 0) {  
+    incomingByte = Serial.read(); 
+    if(incomingByte == '1') {
+      x=2;
+    }
+    if(incomingByte == '2') { 
+      x=1; 
+    }
+    if(incomingByte == '3') {
+      x=3; 
+    }
+     if(incomingByte == '4') {
+      x=4;
+    }
+  }
+  delay(100);
+  switch (x) {
+    case 1:
+      printTemperature(Thermometer1);
+      break;
+    case 2:
+      printTemperature(Thermometer3);
+      break;
+    case 3:
+      Serial.println(Pressure/133.3,1);
+      break;
+    case 4:
+      Serial.println(h);
+      break;
+  }
+}
